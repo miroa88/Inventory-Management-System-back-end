@@ -15,7 +15,7 @@ const getAppointmentById =  async (req, res) => {
     }
 }
 
-const getAppointmentsByDate =  async (req, res) => {
+const getAppointmentsByDate =  async (req, res, next) => {
     const date = req.params.date;
 
     const startOfMonth = moment(date).startOf('month').format();
@@ -39,7 +39,7 @@ const createAppointment =  async (req, res, next) => {
     }
 
     const { duration, name, phone, email, date } = req.body;
-
+    console.log(date)
     // in order to get todays appointment, I used find query 
     // filtering all appointment between yesterday and tomorrow
 
@@ -54,7 +54,7 @@ const createAppointment =  async (req, res, next) => {
         const error = new HttpError('Something went wrong. Could not find an appointment', 500);
         return next(error);
     }
-
+    console.log("bookedAppointments", bookedAppointments)
     // filtering bookedAppointments to find overlaps using the logic bellow
     let isOverlapped = bookedAppointments.filter(appointment => {
         return(   
@@ -66,6 +66,7 @@ const createAppointment =  async (req, res, next) => {
     
     //if overlapped exists, should return an error message
     if (isOverlapped.length) {
+      
         const error = new HttpError('Overlapped found with existing appointment.', 400);
         return next(error);
     }
@@ -91,7 +92,7 @@ const createAppointment =  async (req, res, next) => {
     res.status(201).json({Appointment: createdAppointment.toObject( {getters:true} )});
 }
 
-
+//has a bug when id request id does not exist
 const updateAppointmentById = async (req, res, next) => {
     const error = validationResult(req);
     if(!error.isEmpty()) {

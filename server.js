@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 require('dotenv').config()
 const HttpError = require("./models/httpError");
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const userRoutes = require("./routes/userRoutes");
+const errorHandler = require("./middleWares/errorMiddleWare")
 // const cors = require("cors");
 
 
@@ -26,8 +28,10 @@ app.use(express.urlencoded({extended: false}));
 // app.use(cors({
 //     origin: ["http://localhost:3000"]
 // }))
-
+app.use("/api/users", userRoutes);
 app.use("/api/appointments", appointmentRoutes);
+
+
 
 //this middleware executes if we do not get a response.
 app.use((req, res, next) => {
@@ -36,6 +40,8 @@ app.use((req, res, next) => {
 });
 
 //this middleware executes if the request contains error.
+app.use(errorHandler);
+
 app.use((error, req, res, next) => {   
     if (res.headerSent) {
       return next(error);
@@ -44,6 +50,8 @@ app.use((error, req, res, next) => {
       .status(error.code || 500)
       .json({ message: error.message || "An unknown err happened!!" }); // 
 });
+
+
 
 const PORT = process.env.PORT || 5000
 
